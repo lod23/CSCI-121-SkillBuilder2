@@ -230,13 +230,38 @@ public class Date {
      * @param year year
      * @return the day of the week that the date falls on
      */
-    public static int dayOfWeek(int month = 0, int dayOfMonth, int year){
-        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-            return 31;
-        } else if (month == 4 || month == 6 || month == 9 || month == 11) {
-            return 30;
-        } else if (month == 2) {
-            return isLeapYear(year) ? 29 : 28;
+    public static int dayOfWeek(int month, int dayOfMonth, int year) {
+        if (month < 1 || month > 12 || dayOfMonth < 1 || dayOfMonth > getDaysInMonth(month, year)) {
+            return -1; // Return -1 for invalid input
+        }
+
+        // Adjust month and year for Zeller's Congruence
+        if (month < 3) {
+            month += 12;
+            year -= 1;
+        }
+
+        int k = year % 100;   // Last two digits of the year
+        int j = year / 100;   // First two digits of the year
+
+        // Zeller's Congruence formula
+        int h = (dayOfMonth + (13 * (month + 1)) / 5 + k + (k / 4) + (j / 4) + (5 * j)) % 7;
+
+        // Convert Zeller's output (0 = Saturday, 1 = Sunday, ..., 6 = Friday) to our format
+        int dayOfWeek = (h + 6) % 7;
+
+        return dayOfWeek;
+    }
+
+    // Method to get the number of days in a given month and year
+    public static int getDaysInMonth(int month, int year) {
+        switch (month) {
+            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                return 31;
+            case 4: case 6: case 9: case 11:
+                return 30;
+            case 2:
+                return isLeapYear(year) ? 29 : 28;
         }
         return -1;
     }
